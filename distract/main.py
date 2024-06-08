@@ -3,6 +3,9 @@ import numpy as np
 import math
 from gaze_tracking import GazeTracking
 
+cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture("http://172.17.2.62:8001/video_feed")
+
 gaze = GazeTracking()
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
@@ -103,13 +106,13 @@ def calculate_attention_score(analysis):
     
     # Count occurrences of each attention level
     distraction_count = analysis.count("Distracted")
-    somewhat_count = analysis.count("Somewhat Focussed")
-    focused_count = analysis.count("Definitely Focussed Listening")
+    somewhat_count = analysis.count("Somewhat Focused")
+    focused_count = analysis.count("Definitely Focused Listening")
     
     # Calculate total weighted attention
     total_weighted_attention = (weights["Distracted"] * distraction_count +
-                                weights["Somewhat Focussed"] * somewhat_count +
-                                weights["Definitely Focussed Listening"] * focused_count)
+                                weights["Somewhat Focused"] * somewhat_count +
+                                weights["Definitely Focused Listening"] * focused_count)
     
     # Calculate the total possible attention score
     total_possible_attention = distraction_count + somewhat_count + focused_count
@@ -128,7 +131,7 @@ def is_attentive(attention_score):
     else:
         print("user was not attentive")
 
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 
 cap.set(3,1280) # set Width
 cap.set(4,720) # set Height
@@ -157,11 +160,11 @@ while True:
         print(e)
 
     if boolout:
-        text="Definitely Focussed Listening"
+        text="Definitely Focused Listening"
         print(text)
         analysis.append(text)
     elif attention:
-        text = "Somewhat Focussed"
+        text = "Somewhat Focused"
         print(text)
         analysis.append(text)
     else:
@@ -184,8 +187,8 @@ while True:
     k = cv2.waitKey(30) & 0xff  # press 'ESC' to quit
     if k == 27:
         distraction_count = analysis.count("Distracted")
-        somewhat_count = analysis.count("Somewhat Focussed")
-        focused_count = analysis.count("Definitely Focussed Listening")
+        somewhat_count = analysis.count("Somewhat Focused")
+        focused_count = analysis.count("Definitely Focused Listening")
         attention_score = calculate_attention_score(analysis)
         print("Distracted for : ",0.3*distraction_count,"secs")
         print("Somewhat focused for : ",0.3*somewhat_count,"secs")

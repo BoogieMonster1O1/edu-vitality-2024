@@ -11,6 +11,7 @@ faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 analysis = []
 analysis_timestamps = []
+analysis_integral = []
 
 LBFmodel = "lbfmodel.yaml"
 
@@ -104,7 +105,28 @@ def update_plot(i):
     ax.set_title('User Focus Level Over Time')
     ax.grid(True)
 
+def update_plot3(i):
+    ax[0].clear()
+    ax[0].plot(time_data, focus_values, 'b-', label='Focus Level')
+    ax[0].set_ylim(-0.1, 1.1)
+    ax[0].set_xlabel('Time (s)')
+    ax[0].set_ylabel('Focus Level')
+    ax[0].set_title('User Focus Level Over Time')
+    ax[0].grid(True)
+    ax[0].legend()
+
+    ax[1].clear()
+    ax[1].plot(time_data, analysis_integral, 'r-', label='Analysis Integral')
+    ax[1].set_ylim(-10, 10)
+    ax[1].set_xlabel('Time (s)')
+    ax[1].set_ylabel('Analysis Integral')
+    ax[1].set_title('Analysis Integral Over Time')
+    ax[1].grid(True)
+    ax[1].legend()
+
 ani = animation.FuncAnimation(fig, update_plot, interval=1000)
+
+#ani = animation.FuncAnimation(fig, update_plot, interval=1000)
 
 while True:
     ret, img = cap.read()
@@ -122,6 +144,10 @@ while True:
     except Exception as e:
         print(e)
 
+    last_val = 0
+    if analysis:
+        last_val = analysis[-1]
+
     if boolout:
         text = "Definitely Focussed Listening"
         print(text)
@@ -136,6 +162,9 @@ while True:
         analysis.append(0)
 
     analysis_timestamps.append(time.time() - start_time)
+
+    integral_val = last_val + analysis[-1]
+    analysis_integral.append(integral_val)
 
     # Remove old data beyond 20 seconds
     #while analysis_timestamps and (time.time() - start_time - analysis_timestamps[0] > 20):
